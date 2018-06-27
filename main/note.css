@@ -1,0 +1,153 @@
+html, body{
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+    height: 100vh;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+body{
+    overflow: hidden;
+}
+textarea, select, input, button { outline: none; }
+main#main-container{
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+    background: #EDE7D9;
+    transition: transform 300ms ease-in-out;
+}
+main#main-container.default{
+    background: #EDE7D9;
+}
+main#main-container.pink{
+    background: #EB4B98;
+}
+main#main-container.purple{
+    background: #9D71E4;
+}
+main#main-container.blue{
+    background: #5398BE;
+}
+main#main-container.yellow{
+    background: #F2CD5D;
+}
+main#main-container.red{
+    background: #CE5374;
+}
+main#main-container > input#note-title{
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-bottom: 2px solid rgba(0,0,0,0.5);
+    padding: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+    background: rgba(0,0,0,0.2);
+    cursor: text;
+}
+main#main-container > textarea#note-body{
+    display: block;
+    width: 100%;
+    height: calc(100vh - 50px);
+    border: none;
+    padding: 15px;
+    background: transparent;
+    cursor: text;
+    resize: none;
+}
+main#main-container > textarea#note-body:focus,
+main#main-container > textarea#note-body:focus{
+    border: none;
+}
+div#settings{
+    position: absolute;
+    top: 0px;
+    right: 15px;
+    width: 25px;
+    height: 25px;
+    padding: 5px;
+    background: #FFF;
+    box-sizing: border-box;
+    box-shadow: 0px 0px 5px -1px #000;
+    cursor: pointer;
+    transition: transform 300ms ease-in-out;
+}
+div#color_settings{
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    background: #000;
+    box-sizing: border-box;
+    transform: translate3d(0px,-50px,0px);
+    transition: transform 300ms ease-in-out;
+}
+main#main-container.settings_opened{
+    transform: translate3d(0px,50px,0px);
+}
+div#color_settings > div.color{
+    display: flex;
+    flex: 1;
+    height: 48px;
+    margin-left: 1px;
+    margin-top: 1px;
+    cursor: pointer;
+}
+div#color_settings > div.color:last-of-type{
+    margin-right: 1px;
+}
+div#color_settings > div.color > div.selected{
+    transform: translate3d(0px, -100%, 0px);
+    transition: transform 300ms ease-in-out;
+    width: 100%;
+    height: 50px;
+    box-sizing: border-box;
+    padding: 10px;
+    text-align: center;
+}
+div#color_settings > div.color > div.selected > img{
+    width: auto;
+    height: 30px;
+}
+div#color_settings > div.default{
+    background: #EDE7D9;
+}
+div#color_settings > div.red{
+    background: #CE5374;
+}
+div#color_settings > div.pink{
+    background: #EB4B98;
+}
+div#color_settings > div.purple{
+    background: #9D71E4;
+}
+div#color_settings > div.blue{
+    background: #5398BE;
+}
+div#color_settings > div.yellow{
+    background: #F2CD5D;
+}
+main.default > div#color_settings > div.color.default > div.selected{
+    transform: translate3d(0px,0px,0px);
+}
+main.red > div#color_settings > div.color.red > div.selected{
+    transform: translate3d(0px,0px,0px);
+}
+main.pink > div#color_settings > div.color.pink > div.selected{
+    transform: translate3d(0px,0px,0px);
+}
+main.purple > div#color_settings > div.color.purple > div.selected{
+    transform: translate3d(0px,0px,0px);
+}
+main.blue > div#color_settings > div.color.blue > div.selected{
+    transform: translate3d(0px,0px,0px);
+}
+main.yellow > div#color_settings > div.color.yellow > div.selected{
+    transform: translate3d(0px,0px,0px);
+}
