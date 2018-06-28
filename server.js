@@ -1,14 +1,25 @@
 require('dotenv').config();
 
 // SSL on Localhost
-const https = require('https');
-const fs = require('fs');
-const options = {
-    key: fs.readFileSync( './localhost.key' ),
-    cert: fs.readFileSync( './localhost.crt' ),
-    requestCert: false,
-    rejectUnauthorized: false
-};
+
+const secured = process.env.PORT == 4000;
+console.log("Secure: " + secured);
+
+let https = null;
+let fs = null;
+let options = null;
+let server = null;
+
+if(secured){
+    https = require('https');
+    fs = require('fs');
+    options = {
+        key: fs.readFileSync( './localhost.key' ),
+        cert: fs.readFileSync( './localhost.crt' ),
+        requestCert: false,
+        rejectUnauthorized: false
+    };
+}
 
 // Add Packages
 const express = require('express');
@@ -18,7 +29,10 @@ const path = require('path');
 
 // INitiate the App
 const app = express();
-const server = https.createServer( options, app );
+if(secured){
+    server = https.createServer( options, app );
+}
+
 // Parse Requests
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
@@ -80,6 +94,12 @@ app.get('/service-worker.js', (req, res) => {
 require('./app/routes/notes.routes.js')(app);
 
 // Port Listening
-server.listen(process.env.PORT || 4000, () => {
-    console.log("Server is listening on port: " + process.env.PORT || 4000);
-});
+if(secured){
+    server.listen(process.env.PORT || 4000, () => {
+        console.log("Server is listening on port: " + process.env.PORT || 4000);
+    });
+}else{
+    app.listen(process.env.PORT || 4000, () => {
+        console.log("Server is listening on port: " + process.env.PORT || 4000);
+    });
+}
