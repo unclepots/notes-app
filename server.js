@@ -1,16 +1,24 @@
-require('dotenv').config();
+// Add Packages
+const express = require('express');
+const passport = require('passport');
+const cookieSession = require('cookie-session');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const path = require('path');
 
-// SSL on Localhost
+// Import Auth Strategies
+const passportSetup = require('./config/passport');
 
-const secured = process.env.PORT == 4000;
-console.log("Secure: " + secured);
+// Import Keys
+const keys = require('./config/keys');
 
+// If LOCALHOST enable Import Additional Packages
 let https = null;
 let fs = null;
 let options = null;
 let server = null;
 
-if(secured){
+if(keys.is_localhost){
     https = require('https');
     fs = require('fs');
     options = {
@@ -21,15 +29,11 @@ if(secured){
     };
 }
 
-// Add Packages
-const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const path = require('path');
-
-// INitiate the App
+// Initiate the App
 const app = express();
-if(secured){
+
+// If LOCALHOST enable HTTPS
+if(keys.is_localhost){
     server = https.createServer( options, app );
 }
 
@@ -37,11 +41,8 @@ if(secured){
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-// DB Configuration
-const dbConfig = require('./config/database.config.js');
-
 // Connecting to the DB
-mongoose.connect(dbConfig.url)
+mongoose.connect(keys.database.url)
 .then(() => {
     console.log("Successfully connected to the database");
 }).catch(err => {
@@ -50,51 +51,39 @@ mongoose.connect(dbConfig.url)
     process.exit();
 });
 
-// Homepage Path
+// Enable Cookies
+app.use(cookieSession({
+    maxAge: 30*24*60*60*1000,
+    keys: [keys.session.cookieKey]
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Use EJS Template System
+app.set('view engine', 'ejs');
+
+/* ENABLE URIs */
+
+// Import Expternal Routes
+const authRoutes = require('./app/routes/auth.routes.js');
+const userRoutes = require('./app/routes/user.routes.js');
+
+// Static Routes
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Homepage Route
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname + '/templates/index.html'));
+    res.render('home', {user: req.user});
 });
 
-// Manifest Path
-app.get('/manifest.json', (req, res) => {
-    res.sendFile(path.join(__dirname + '/manifest.json'));
-});
-
-// JS and CSS Resources
-app.get('/main/:name', (req, res) => {
-    const filename = req.params.name;
-    res.sendFile(path.join(__dirname + '/main/' + filename));
-});
-
-// Favicon
-app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.join(__dirname + '/favicon.ico'));
-});
-
-// Settings Icon
-app.get('/images/settings_icon.svg', (req, res) => {
-    res.sendFile(path.join(__dirname + '/images/settings_icon.svg'));
-});
-// Checkmark
-app.get('/images/color_selected.svg', (req, res) => {
-    res.sendFile(path.join(__dirname + '/images/color_selected.svg'));
-});
-
-// Other icons
-app.get('/images/icons/:icon', (req, res) => {
-    let icon_name = req.params.icon;
-    res.sendFile(path.join(__dirname + '/images/icons/' + icon_name));
-});
-
-// Service Worker
-app.get('/service-worker.js', (req, res) => {
-    res.sendFile(path.join(__dirname + '/service-worker.js'));
-});
-
-require('./app/routes/notes.routes.js')(app);
+// External Routes
+app.use('/auth/', authRoutes);
+app.use('/user/', userRoutes);
 
 // Port Listening
-if(secured){
+if(keys.is_localhost){
     server.listen(process.env.PORT || 4000, () => {
         console.log("Server is listening on port: " + process.env.PORT || 4000);
     });

@@ -1,0 +1,249 @@
+/* ========================
+    Initial
+======================== */
+:root{
+    /* General */
+    --transition: all 300ms cubic-bezier(0.15, 0.61, 0.35, 1);
+    /* Color Settings */
+    --color-default: #EDE7D9;
+    --color-pink: #EB4B98;
+    --color-purple: #9D71E4;
+    --color-blue: #5398BE;
+    --color-yellow: #F2CD5D;
+    --color-red: #CE5374;
+}
+html, body{
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+    height: 100vh;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+/* ========================
+    Defaults
+======================== */
+.left{text-align:left;}
+.right{text-align:right;}
+.center{text-align:center;}
+/* ========================
+    Add to home Banner
+======================== */
+#add-to-home-banner{
+    visibility: hidden;
+    width: 100%;
+    height: 50px;
+    position: fixed;
+    z-index: 999;
+    background: #738290;
+    box-shadow: 0px -9px 10px 10px #000;
+    top: 0px;
+    left: 0px;
+    transform: translate3d(0px,-115%,0px);
+    transition: transform 500ms 100ms cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+#add-to-home-banner.open{
+    transform: translate3d(0px,0px,0px);
+}
+#add-to-home-banner > button#add-to-home{
+    float: right;
+    height: 40px;
+    margin: 5px;
+    border: none;
+    background: #fffcf7;
+    padding: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 300ms cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+#add-to-home-banner > button#add-to-home:hover{
+    background: #a2f5ab;
+}
+/* ========================
+    Navigation Panel
+======================== */
+body > nav#main-nav{
+    position: fixed;
+    z-index: 1;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 60px;
+    padding: 10px;
+    box-sizing: border-box;
+    background: #FFF;
+    box-shadow: 0px -5px 15px 0px #000;
+}
+body > nav#main-nav > div.profile_pic{
+    float: left;
+    margin-right: 6px;
+}
+body > nav#main-nav > div.profile_pic > img{
+    height: 40px;
+    width: auto;
+    border-radius: 50%;
+}
+body > nav#main-nav > h1{
+    margin: 0px;
+    font-size: 1em;
+    line-height: 40px;
+    display: inline-block;
+}
+body > nav#main-nav > ul#main-menu{
+    padding: 0px;
+    margin: 0px;
+    list-style: none;
+    float: right;
+}
+body > nav#main-nav > ul#main-menu > li{
+    display: inline-block;
+}
+body > nav#main-nav > ul#main-menu > li > a{
+    line-height: 40px;
+    text-decoration: none;
+    color: #000;
+    text-transform: uppercase;
+    margin: 0px 5px;
+}
+body > nav#main-nav > ul#main-menu > li > a:hover{
+    color: #C2C2C2;
+}
+/* ========================
+    Main Container
+======================== */
+main#main-container{
+    width: 100%;
+    height: 100vh;
+    padding: 70px 15px 15px;
+    box-sizing: border-box;
+    background: #ccc;
+}
+/* ========================
+    Header
+======================== */
+main#main-container > header{
+    margin: 15px 0px 30px;
+}
+main#main-container > header > h2{
+    margin: 0px;
+}
+main#main-container > header > p{
+    margin: 0px;
+    color: #515151;
+    font-size: 0.7em;
+}
+/* ========================
+    Sections
+======================== */
+main#main-container > section.fluid{
+    width: 100%;
+}
+main#main-container > section.fixed{
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
+}
+/* ========================
+    Login boxes
+======================== */
+.login-box{
+    widows: 100%;
+    max-width: 400px;
+    margin: 0px auto;
+    background: #FFF;
+    padding: 15px;
+    box-shadow: 0px 5px 15px -10px #000;
+    position: relative;
+    transform: scale3d(1,1,1);
+    transition: var(--transition);
+}
+.login-box:after{
+    content: " ";
+    display: block;
+    height: 1px;
+    width: 80%;
+    background: #C2C2C2;
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.login-box:hover{
+    transform: scale3d(1.05,1.05,1);
+    margin: 15px auto;
+}
+.login-regular > form{
+    margin: 0px;
+}
+.login-regular > form > input{
+    width: 100%;
+    padding: 5px 0px;
+    font-size: 1em;
+    border: none;
+    border-bottom: 1px solid #C2C2C2;
+    margin-bottom: 10px;
+    background: #FFF;
+}
+.login-regular > form > input[type=submit]{
+    border: 1px solid #C2C2C2;
+    padding: 10px 0px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0px;
+    color: #FFF;
+    background: #CE5374;
+    transition: var(--transition);
+}
+.login-regular > form > input[type=submit]:hover{
+    background: #b34966;
+}
+.login-oauth > a{
+    text-align: center;
+    line-height: 30px;
+    width: calc(100% - 10px);
+    display: inline-block;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.login-oauth.google > a{
+    background: #d34836;
+    color: #FFF;
+}
+.login-oauth.google > a:hover{
+    background: #c2402f;
+}
+.login-oauth.facebook > a{
+    background: #3B5998;
+    color: #FFF;
+}
+.login-oauth.facebook > a:hover{
+    background: #324b80;
+}
+/* ========================
+    Section Profile
+======================== */
+div.profile{
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+    background: #FFF;
+    box-shadow: 0px 5px 15px -10px #000;
+}
+div.profile > div.profile_pic{
+    width: 150px;
+    border: 1px solid #C2C2C2;
+    padding: 5px;
+    box-sizing: border-box;
+    display: inline-block;
+}
+div.profile > div.profile_pic > img{
+    width: 100%;
+    height: auto;
+}
+div.profile > div.profile_info{
+    display: inline-block;
+    vertical-align: top;
+}

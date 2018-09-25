@@ -1,6 +1,4 @@
 const Note = require('../models/notes.model.js');
-const path = require('path');
-const fs = require('fs');
 const sanitize = require('sanitize');
 const sanitizer = sanitize();
 
