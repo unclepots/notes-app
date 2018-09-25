@@ -10,12 +10,12 @@ module.exports = {
     google: {
         client_id: process.env.GOOGLE_ID,
         client_secret: process.env.GOOGLE_SECRET,
-        callback: "/auth/google/redirect"
+        callback: domain + "/auth/google/redirect"
     },
     facebook: {
         client_id: process.env.FACEBOOK_ID,
         client_secret: process.env.FACEBOOK_SECRET,
-        callback: "/auth/facebook/redirect"
+        callback: domain + "/auth/facebook/redirect"
     },
     session: {
         cookieKey: process.env.COOKIE_KEY
