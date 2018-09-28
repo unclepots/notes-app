@@ -1,9 +1,9 @@
 require('dotenv').config();
 
 let db_name = process.env.DB_NAME || 'production';
-let is_localhost = process.env.PORT === 4000 ? true : false;
+let is_localhost = process.env.PORT == 4000 ? true : false;
 
-let domain = process.env.PORT === 4000 ? 'https://localhost:4000' : 'https://anatoly-notes-app.herokuapp.com';
+let domain = is_localhost ? 'https://localhost:4000' : 'https://anatoly-notes-app.herokuapp.com';
 
 module.exports = {
     is_localhost: is_localhost,

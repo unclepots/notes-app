@@ -16,62 +16,35 @@ html, body{
     padding: 0px;
     margin: 0px;
     width: 100%;
-    height: 100vh;
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     -webkit-font-smoothing: subpixel-antialiased;
+    display: flex;
 }
 /* ========================
     Defaults
 ======================== */
+*, *::before, *::after{
+    box-sizing:border-box;
+    transition-timing-function:cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+*{
+    outline: none !important;
+}
 .left{text-align:left;}
 .right{text-align:right;}
 .center{text-align:center;}
-/* ========================
-    Add to home Banner
-======================== */
-#add-to-home-banner{
-    visibility: hidden;
-    width: 100%;
-    height: 50px;
-    position: fixed;
-    z-index: 999;
-    background: #738290;
-    box-shadow: 0px -9px 10px 10px #000;
-    top: 0px;
-    left: 0px;
-    transform: translate3d(0px,-115%,0px);
-    transition: transform 500ms 100ms cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-#add-to-home-banner.open{
-    transform: translate3d(0px,0px,0px);
-}
-#add-to-home-banner > button#add-to-home{
-    float: right;
-    height: 40px;
-    margin: 5px;
-    border: none;
-    background: #fffcf7;
-    padding: 10px;
-    box-sizing: border-box;
-    cursor: pointer;
-    transition: all 300ms cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-#add-to-home-banner > button#add-to-home:hover{
-    background: #a2f5ab;
-}
 /* ========================
     Navigation Panel
 ======================== */
 body > nav#main-nav{
     position: fixed;
-    z-index: 1;
+    z-index: 2;
     top: 0px;
     left: 0px;
     width: 100%;
     height: 60px;
     padding: 10px;
-    box-sizing: border-box;
     background: #FFF;
     box-shadow: 0px -5px 15px 0px #000;
 }
@@ -114,10 +87,11 @@ body > nav#main-nav > ul#main-menu > li > a:hover{
 ======================== */
 main#main-container{
     width: 100%;
-    height: 100vh;
-    padding: 70px 15px 15px;
-    box-sizing: border-box;
+    min-height: calc(100vh - 60px);
+    padding: 15px;
+    margin-top: 60px;
     background: #ccc;
+    position: relative;
 }
 /* ========================
     Header
@@ -228,7 +202,6 @@ main#main-container > section.fixed{
 div.profile{
     width: 100%;
     padding: 15px;
-    box-sizing: border-box;
     background: #FFF;
     box-shadow: 0px 5px 15px -10px #000;
 }
@@ -236,7 +209,6 @@ div.profile > div.profile_pic{
     width: 150px;
     border: 1px solid #C2C2C2;
     padding: 5px;
-    box-sizing: border-box;
     display: inline-block;
 }
 div.profile > div.profile_pic > img{
@@ -246,4 +218,205 @@ div.profile > div.profile_pic > img{
 div.profile > div.profile_info{
     display: inline-block;
     vertical-align: top;
+}
+/* ========================
+    Notes Toolbar
+======================== */
+div#notes-toolbar{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    height: 80px;
+    z-index: 1;
+    text-align: center;
+    transform: translate3d(0px, -60px, 0px);
+    transition-property: all;
+    transition: 300ms;
+    transition-delay: 700ms;
+}
+div#notes-toolbar:hover{
+    transition-delay: 0ms;
+    transform: translate3d(0px, 0px, 0px);
+}
+div#notes-toolbar > .toolbar{
+    padding: 15px 10px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    flex: 0 0 60px;
+    background: #FFF;
+    box-shadow: 0px -5px 15px 0px #000;
+}
+div#notes-toolbar > .handle{
+    width: 100%;
+    flex: 0 0 20px;
+}
+div#notes-toolbar > .toolbar > .btn{
+    flex: 0;
+    display: flex;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    border: 1px solid #CCC;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-right: 10px;
+}
+/* ========================
+    Notes Container
+======================== */
+section#notes-container{
+    display: flex;
+    flex-wrap: wrap;
+}
+/* ========================
+    Notes
+======================== */
+article.note{
+    flex: 0 0 100%;
+    padding: 10px;
+}
+article.note > span.close{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
+    position: absolute;
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: 1.5rem;
+    height: 1.5rem;
+    z-index: 1;
+    cursor: pointer;
+    top: 15px;
+    right: 15px;
+    background: white;
+    border-radius: 50%;
+    transform: scale3d(0, 0, 0);
+    transition-property: transform;
+    transition-duration: 700ms;
+}
+article.note.open{
+    display: flex;
+    padding: 50px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    z-index: 1;
+    background: rgba(0,0,0,0.5);
+}
+article.note.open > span.close{
+    transform: translate3d(0px, 0%, 0px);
+}
+article.note.open > div.content{
+    transform: scale3d(1,1,1) !important;
+    flex: 1;
+}
+article.note.open div.hover{
+    display: none !important;
+}
+@media only screen and (min-width: 576px) {
+    article.note{
+        flex: 0 0 50%;
+    }
+}
+@media only screen and (min-width: 768px) {
+    article.note{
+        flex: 0 0 33.3333333%;
+    }
+}
+@media only screen and (min-width: 992px) {
+    article.note{
+        flex: 0 0 25%;
+    }
+}
+@media only screen and (min-width: 1200px) {
+    article.note{
+        flex: 0 0 20%;
+    }
+}
+article.note > div.content{
+    padding: 15px;
+    cursor: pointer;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    flex-direction: column;
+    box-shadow: 1px 1px 5px -2px #000;
+    transform: scale3d(1,1,1);
+    transition-duration: 700ms;
+    transition-property: all;
+}
+article.note > div.content > div.hover{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    background: rgba(0,0,0,0);
+    transform: translate3d(0px, 100%, 0px);
+    transition-duration: 500ms;
+    transition-property: all;
+}
+article.note > div.content > div.hover > span{
+    display: flex;
+    width: 30px;
+    height: 30px;
+    color: #FFF;
+    align-items: center;
+    justify-content: center;
+}
+article.note > div.content > div.hover > span.expand{
+    cursor: zoom-in;
+}
+article.note > div.content:hover{
+    transform: scale3d(1.05,1.05,1.05);
+    box-shadow: 2px 2px 7px -1px #555;
+}
+article.note > div.content:hover > div.hover{
+    background: rgba(0,0,0,0.5);
+    transform: translate3d(0px, 0%, 0px);
+}
+article.note.default > div.content{
+    color: #1f2d3d;
+    background: #f7f5fb;
+}
+article.note.orange > div.content{
+    color: #1f2d3d;
+    background: #F58A07;
+}
+article.note .title{
+    margin: 0px;
+    color: inherit;
+    font-size: 1rem;
+    font-weight: bold;
+    width: 100%;
+    padding: 5px;
+    padding-bottom: 10px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #a9a9a9;
+}
+article.note .body{
+    margin: 0px;
+    color: inherit;
+    font-size: 1rem;
+    font-weight: normal;
+    width: 100%;
+    padding: 5px;
+    min-height: 10rem;
+    flex: 1 0;
+    padding-bottom: 10px;
+    background: transparent;
+    border: none;
+    resize: none;
 }

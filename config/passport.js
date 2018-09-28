@@ -29,7 +29,6 @@ passport.use(
         clientSecret: keys.google.client_secret
     },
     (accessToken, refreshToken, profile, done) => {
-        console.log(profile);
 
         User.findOne({
             'google.id': profile.id

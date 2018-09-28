@@ -1,65 +1,25 @@
-<html>
-    <head>
-        <title>Notes App</title>
-        <meta name="description" content="Notes reimagined! The new notes progressive web app utilizes the lastest technology to bring you the best notes app">
-
-        <meta name="theme-color" content="#000000">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link rel="manifest" href="manifest.json">
-        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-        <link rel="icon" href="/favicon.ico" type="image/x-icon">
-
-        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-        <link rel="stylesheet" href="/main/main.css" type="text/css" media="all">
-    </head>
-    <body>
-        <div id="add-to-home-banner">
-            <button id="add-to-home">Add to Home</button>
+<%- include part_header %>
+<header class="left">
+    <h2>Hello <%= user.google.display_name %></h2>
+    <p>Have a nice day! -from the creator</p>
+</header>
+<section class="fixed">
+    <div class="profile">
+        <div class="profile_pic">
+            <img src="<%=user.google.profile_pic%>" />
         </div>
-        <nav id="main-nav">
-            <% if(user){ %>
-            <div class="profile_pic">
-                <img src="<%=user.google.profile_pic%>" />
-            </div>
-            <% } %>
-            <h1>Notes App</h1>
-            <ul id="main-menu">
-                <li><a href="/">Home</a></li>
-                <% if(user){ %>
-                <li><a href="/user/profile/">Profile</a></li>
-                <li><a href="/auth/logout/">Logout</a></li>
-                <% }else{ %>
-                <li><a href="/auth/login/">Login</a></li>
-                <% } %>
-            </ul>
-        </nav>
-        <main id="main-container">
-            <header class="left">
-                <h2>Hello <%= user.google.display_name %></h2>
-                <p>Have a nice day! -from the creator</p>
-            </header>
-            <section class="fixed">
-                <div class="profile">
-                    <div class="profile_pic">
-                        <img src="<%=user.google.profile_pic%>" />
-                    </div>
-                    <div class="profile_info">
-                        <table>
-                            <tr>
-                                <td>Display Name:</td>
-                                <td><%=user.google.display_name%></td>
-                            </tr>
-                            <tr>
-                                <td>Email:</td>
-                                <td><%=user.google.email%></td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </body>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
-    <script src="/main/main.js"></script>
-</html>
+        <div class="profile_info">
+            <table>
+                <tr>
+                    <td>Display Name:</td>
+                    <td><%=user.google.display_name%></td>
+                </tr>
+                <tr>
+                    <td>Email:</td>
+                    <td><%=user.google.email%></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</section>
+<%- include part_footer %>
