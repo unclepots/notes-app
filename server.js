@@ -70,6 +70,7 @@ app.set('view engine', 'ejs');
 const authRoutes = require('./app/routes/auth.routes.js');
 const userRoutes = require('./app/routes/user.routes.js');
 const notesRoutes = require('./app/routes/notes.routes.js');
+const noteRoutes = require('./app/routes/note.routes.js');
 
 // Static Routes
 app.use(express.static(path.join(__dirname, 'public')));
@@ -83,6 +84,7 @@ app.get('/', (req, res) => {
 app.use('/auth/', authRoutes);
 app.use('/user/', userRoutes);
 app.use('/notes/', notesRoutes);
+app.use('/note/', noteRoutes);
 
 // Port Listening
 if(keys.is_localhost){

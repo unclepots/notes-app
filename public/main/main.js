@@ -1,74 +1,3 @@
-// const Notes = {
-//     add_new_note: document.getElementById("add-new-note"),
-//     Notes_container: document.getElementById("Notes"),
-//     opened_Notes: [],
-
-//     init: function(){
-//         // Create new note
-//         this.add_new_note.addEventListener('click', (e) => {
-//             this.open(location.origin + "/note/new");
-//         });
-//     },
-
-//     get_Notes: function(){
-//         const xhttp = new XMLHttpRequest();
-//         xhttp.onreadystatechange = function(){
-//             Notes.put_Notes(this);
-//         };
-//         xhttp.open("GET", location.origin + "/Notes/", true);
-//         xhttp.send();
-//     },
-
-//     put_Notes: function(data){
-//         if(data.readyState == 4 && data.status == 200){
-//             if(data.response.indexOf('{') === 0 || data.response.indexOf('[') === 0){
-//                 const res = JSON.parse(data.response);
-//                 res.reverse();
-//                 res.forEach(element => {
-//                     this.put_note(element);
-//                 });
-//             }else{
-//                 console.log(data.response);
-//             }
-//         }
-//     },
-
-//     put_note: function(note){
-//         if(note.color === undefined){
-//             note.color = "default";
-//         }
-//         const article = `
-//         <article data-id="${note._id}" class="note ${note.color}" onclick="Notes.open_note(this)">
-//             <h2 class="note-title">${note.title}</h2>
-//             <p class="note-body">${note.body}</p>
-//         <article>
-//         `;
-//         this.Notes_container.innerHTML += article;
-//     },
-
-//     open: function(url, id){
-//         let opened = false;
-//         this.opened_Notes.forEach(win => {
-//             if(win.name === id){
-//                 opened = true;
-//             }
-//         });
-//         if(opened){
-//             this.opened_Notes.forEach(win => {
-//                 if(win.name === id){
-//                     win.focus();
-//                 }
-//             });
-//         }else{
-//             this.opened_Notes.push(window.open(url, id, "width=350,height=350,top=350,left=350"));
-//         }
-//     },
-
-//     open_note: function(data){
-//        this.open(location.origin + "/note/" + data.dataset.id, data.dataset.id);
-//     }
-// }
-
 window.addEventListener('load', (e) => {
     "use strict";
     console.log("Document Loaded");
@@ -111,6 +40,11 @@ const Notes = {
         Notes.action.populate();
 
         resolve('Notes Initiated');
+
+        Notes.bind('span.expand', 'click', Notes.action.expand);
+        Notes.bind('span.close', 'click', Notes.action.close);
+        Notes.bind('span.delete', 'click', Notes.action.delete);
+        
     }),
 
     action: {
@@ -131,11 +65,10 @@ const Notes = {
         }),
 
         new: () => new Promise((resolve, reject) => {
-            console.log('Button "New" clicked');
             
             const args = {
-                endpoint: '/notes/new/',
-                action: 'POST',
+                endpoint: '/note/',
+                action: 'PUT',
                 payload: {}
             }
     
@@ -146,6 +79,86 @@ const Notes = {
             resolve();
         }),
 
+        expand: (e) => new Promise((resolve, reject) => {
+
+            var target = e.toElement;
+            var found = false;
+
+            while(!found){
+                if(target.classList.contains('note')){
+                    found = true;
+                }else{
+                    target = target.parentElement;
+                }
+                
+            }
+
+            if(!found) return false;
+
+            target.classList.add('open');
+            
+
+            resolve();
+        }),
+
+        close: (e) => new Promise((resolve, reject) => {
+
+            var target = e.toElement;
+            var found = false;
+            
+            while(!found){
+                if(target.classList.contains('note')){
+                    found = true;
+                }else{
+                    target = target.parentElement;
+                }
+                
+            }
+
+            if(!found) return false;
+
+            target.classList.remove('open');
+            
+
+            resolve();
+
+        }),
+
+        delete: (e) => new Promise((resolve, reject) => {
+
+            var confirmed = window.confirm('Are you sure you want to delete this note?');
+
+            if(!confirmed) return false;
+
+            var target = e.toElement;
+            var found = false;
+            
+            while(!found){
+                if(target.classList.contains('note')){
+                    found = true;
+                }else{
+                    target = target.parentElement;
+                }
+                
+            }
+
+            if(!found) return false;
+
+            const args = {
+                endpoint: '/note/',
+                action: 'DELETE',
+                payload: {
+                    id: target.id,
+                }
+            }
+    
+            Notes.storage.remote.request(args).catch(err => {
+                console.error(err);
+            });
+
+            resolve();
+
+        }),
     },
 
     storage: {
@@ -166,6 +179,11 @@ const Notes = {
                         Notes.ui.add(note);
                     }
                 }
+                resolve();
+            }),
+
+            delete: (id) => new Promise((resolve, reject) => {
+                localStorage.removeItem(id);
                 resolve();
             }),
         },
@@ -201,10 +219,14 @@ const Notes = {
                     case 'new':
                         Notes.update.new(response.payload);
                         break;
+                    case 'delete':
+                        Notes.update.delete(response.payload);
+                        break;
                     default:
                         console.log(response);
                 }
             },
+
         }
     },
 
@@ -237,13 +259,28 @@ const Notes = {
             })
         }),
 
+        delete: (id) => new Promise((resolve, reject) => {
+
+            var promises = [
+                Notes.storage.local.delete(id),
+                Notes.ui.delete(id)
+            ];
+
+            Promise.all(promises).then(() => {
+                console.log('Note removed');
+            }).catch(err => {
+                console.error(err);
+            })
+
+        }),
+
     },
 
     ui: {
         add: (note) => new Promise((resolve, reject) => {
             
             const html = `<article id="${note._id}" class="note ${note.color}">
-                <span class="close">X</span>
+                <span class="close"><i class="fas fa-times"></i></span>
                 <div class="content">
                     <div class="color-toolbar"></div>
                     <input class="title" type="text" placeholder="Title" value="${note.title}" />
@@ -253,14 +290,15 @@ const Notes = {
                         <div class="status"></div>
                     </div>
                     <div class="hover">
-                        <span class="expand">[ ]</div>
+                        <span class="hint expand" data-hint="Expand"><i class="fas fa-expand"></i></span>
+                        <span class="hint external" data-hint="Open as separate"><i class="fas fa-external-link-square-alt"></i></span>
+                        <span class="hint delete" data-hint="Delete note"><i class="fas fa-trash-alt"></i></span>
                     </div>
                 </div>
             </article>`;
 
             Notes.main_container.innerHTML = html + Notes.main_container.innerHTML;
 
-            Notes.ui.bind();
             resolve();
         }),
 
@@ -269,30 +307,6 @@ const Notes = {
             
             the_note.querySelector('.title').innerHTML = note.title;
             the_note.querySelector('p').innerHTML = note.body;
-
-            Notes.ui.bind();
-            resolve();
-        }),
-        
-        bind: () => new Promise((resolve, reject) => {
-            
-            var notes = document.querySelectorAll('article.note');
-            
-            notes.forEach(note => {
-                var expand = note.querySelector('span.expand');
-                var close = note.querySelector('span.close');
-
-                expand.addEventListener('click', function(e){
-                    var parent = this.parentElement.parentElement.parentElement;
-                    if(!parent.classList.contains('open')){
-                        parent.classList.add('open');
-                    }
-                });
-                
-                close.addEventListener('click', function(e){
-                    e.target.parentElement.classList.remove('open')
-                })
-            });
 
             resolve();
         }),
@@ -311,9 +325,56 @@ const Notes = {
                 }
             }
 
-            console.log(this);
+            resolve();
+        }),
+
+        delete: (id) => new Promise((resolve, reject) => {
+            
+            var note = document.getElementById(id);
+
+            note.classList.add('deleted');
+
+            setTimeout(function(){
+                note.parentNode.removeChild(note);
+            }, 700);
+
             resolve();
         }),
     },
 
+    bind: (selector, eventType, callback, context) => new Promise((resolve, reject) => {
+
+        (context || document).addEventListener(eventType, function(event){
+            
+            var nodeList = document.querySelectorAll(selector);
+
+            // convert nodeList into matches array
+            var matches = [];
+            for(var i = 0; i < nodeList.length; ++i){
+                matches.push(nodeList[i]);
+            }
+
+            // if there are matches
+            if(matches){
+                var element = event.target;
+                var found = false;
+
+                // traverse up the DOM tree until element can't be found in matches array
+                while(element && !found){
+                    if(matches.indexOf(element) === -1){
+                        element = element.parentElement;
+                    }else{
+                        found = true;
+                    }
+                }
+
+                // when element matches the selector, apply the callback
+                if(found){
+                    callback.call(element, event);
+                }
+            }
+        }, false);
+
+        resolve();
+    }),
 }

@@ -12,7 +12,7 @@ collection.get_user_notes = (user_id) => new Promise((resolve, reject) => {
     })
 })
 
-collection.create_new_note = (user_id) => new Promise((resolve, reject) => {
+collection.create = (user_id) => new Promise((resolve, reject) => {
     
     var note = new NotesModel({
         owner: user_id,
@@ -27,6 +27,28 @@ collection.create_new_note = (user_id) => new Promise((resolve, reject) => {
         console.error(err);
         reject();
     })
+})
+
+collection.delete = (user_id, note_id) => new Promise((resolve, reject) => {
+
+    NotesModel.findById(note_id).then(note => {
+        if(note.owner == user_id){
+            NotesModel.deleteOne(note).then(() => {
+                resolve(note_id);
+            }).catch(err => {
+                console.error(err);
+                reject();
+            })
+        }else{
+            reject({
+                error: 'You don\'t have permissions to delete this Note'
+            })
+        }
+    }).catch(err => {
+        console.error(err);
+        reject();
+    })
+
 })
 
 module.exports = collection;

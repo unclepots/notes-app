@@ -16,6 +16,7 @@ html, body{
     padding: 0px;
     margin: 0px;
     width: 100%;
+    height: 100%;
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     -webkit-font-smoothing: subpixel-antialiased;
@@ -87,8 +88,7 @@ body > nav#main-nav > ul#main-menu > li > a:hover{
 ======================== */
 main#main-container{
     width: 100%;
-    min-height: calc(100vh - 60px);
-    padding: 15px;
+    height: calc(100% - 60px);
     margin-top: 60px;
     background: #ccc;
     position: relative;
@@ -236,6 +236,8 @@ div#notes-toolbar{
     transition-property: all;
     transition: 300ms;
     transition-delay: 700ms;
+    background: #FFF;
+    box-shadow: 0px -5px 15px 0px #000;
 }
 div#notes-toolbar:hover{
     transition-delay: 0ms;
@@ -247,12 +249,14 @@ div#notes-toolbar > .toolbar{
     align-items: center;
     width: 100%;
     flex: 0 0 60px;
-    background: #FFF;
-    box-shadow: 0px -5px 15px 0px #000;
+    border-bottom: 1px solid #DDD;
 }
 div#notes-toolbar > .handle{
     width: 100%;
     flex: 0 0 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 div#notes-toolbar > .toolbar > .btn{
     flex: 0;
@@ -272,6 +276,10 @@ div#notes-toolbar > .toolbar > .btn{
 section#notes-container{
     display: flex;
     flex-wrap: wrap;
+    padding: 15px;
+    padding-top: 40px;
+    overflow-y: scroll;
+    height: 100%;
 }
 /* ========================
     Notes
@@ -313,6 +321,10 @@ article.note.open{
 }
 article.note.open > span.close{
     transform: translate3d(0px, 0%, 0px);
+}
+article.note.deleted > div.content{
+    transform: scale3d(0,0,0) !important;
+    flex: 1;
 }
 article.note.open > div.content{
     transform: scale3d(1,1,1) !important;
@@ -369,8 +381,9 @@ article.note > div.content > div.hover{
 }
 article.note > div.content > div.hover > span{
     display: flex;
-    width: 30px;
-    height: 30px;
+    width: 2rem;
+    font-size: 1.5rem;
+    height: 2rem;
     color: #FFF;
     align-items: center;
     justify-content: center;
@@ -419,4 +432,25 @@ article.note .body{
     background: transparent;
     border: none;
     resize: none;
+}
+.hint{
+    position: relative;
+}
+.hint::after{
+    position: absolute;
+    white-space: nowrap;
+    top: 0%;
+    left: 30%;
+    transform: translate3d(0px, -100%, 0px);
+    display: block;
+    content: attr(data-hint);
+    font-size: 0.8rem;
+    background: black;
+    padding: 3px;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 200ms;
+}
+.hint:hover::after{
+    opacity: 1;
 }
