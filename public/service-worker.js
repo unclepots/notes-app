@@ -25,7 +25,13 @@ const networkRoutes = ({url, event}) => {
     return false;
   }
 
-  if(url.pathname.match('\/$') && url.pathname.indexOf('auth') < 0){
+  if(
+    (
+      url.pathname.match('note\/.{20,30}$') ||
+      url.pathname.match('\/$')
+    ) &&
+    url.pathname.indexOf('auth') < 0
+    ){
     return true;
   }
 
