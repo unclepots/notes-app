@@ -1,153 +1,112 @@
+*, *::before, *::after{box-sizing:border-box;transition: all 300ms cubic-bezier(0.15, 0.61, 0.35, 1);}
 html, body{
     padding: 0px;
     margin: 0px;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     -webkit-font-smoothing: subpixel-antialiased;
+    display: flex;
+    background: #CCC;
 }
-body{
-    overflow: hidden;
-}
-textarea, select, input, button { outline: none; }
-main#main-container{
+main#note{
     width: 100%;
-    height: 100vh;
-    box-sizing: border-box;
-    background: #EDE7D9;
-    transition: transform 300ms ease-in-out;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
 }
-main#main-container.default{
-    background: #EDE7D9;
+main#note > span#close{
+    display: none;
 }
-main#main-container.pink{
-    background: #EB4B98;
-}
-main#main-container.purple{
-    background: #9D71E4;
-}
-main#main-container.blue{
-    background: #5398BE;
-}
-main#main-container.yellow{
-    background: #F2CD5D;
-}
-main#main-container.red{
-    background: #CE5374;
-}
-main#main-container > input#note-title{
-    display: block;
-    position: relative;
-    width: 100%;
-    height: 50px;
-    border: none;
-    border-bottom: 2px solid rgba(0,0,0,0.5);
-    padding: 15px;
-    font-size: 1.2em;
-    font-weight: bold;
-    background: rgba(0,0,0,0.2);
-    cursor: text;
-}
-main#main-container > textarea#note-body{
-    display: block;
-    width: 100%;
-    height: calc(100vh - 50px);
-    border: none;
-    padding: 15px;
-    background: transparent;
-    cursor: text;
-    resize: none;
-}
-main#main-container > textarea#note-body:focus,
-main#main-container > textarea#note-body:focus{
-    border: none;
-}
-div#settings{
-    position: absolute;
+div#toolbar{
+    position: fixed;
     top: 0px;
-    right: 15px;
-    width: 25px;
-    height: 25px;
-    padding: 5px;
+    left: 30px;
+    right: 30px;
+    height: 60px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    transform: translate3d(0px, -40px, 0px);
+    transition-property: all;
+    transition-duration: 300ms;
+}
+div#toolbar > span#toolbar-handle{
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background: #FFF;
-    box-sizing: border-box;
-    box-shadow: 0px 0px 5px -1px #000;
-    cursor: pointer;
-    transition: transform 300ms ease-in-out;
+    margin-right: 15px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
-div#color_settings{
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    width: 100%;
-    height: 50px;
+div#toolbar > span#toolbar-handle > i{
+    transform: rotate(0, 0, 1, 0deg);
+    transition-property: all;
+    transition-duration: 300ms;
+}
+div#toolbar > div.actions{
+    flex: 0 0 40px;
+    background: #FFF;
+}
+section#content{
+    flex: 1 1 100%;
     display: flex;
-    background: #000;
-    box-sizing: border-box;
-    transform: translate3d(0px,-50px,0px);
-    transition: transform 300ms ease-in-out;
+    flex-direction: column;
+    padding: 15px;
+    transform: translate3d(0px, 0px, 0px);
+    transition-property: all;
+    transition-duration: 300ms;
 }
-main#main-container.settings_opened{
-    transform: translate3d(0px,50px,0px);
+main#note.default > section#content{
+    color: #1f2d3d;
+    background: #f7f5fb;
 }
-div#color_settings > div.color{
-    display: flex;
-    flex: 1;
-    height: 48px;
-    margin-left: 1px;
-    margin-top: 1px;
-    cursor: pointer;
+main#note.orange > section#content{
+    color: #1f2d3d;
+    background: #F58A07;
 }
-div#color_settings > div.color:last-of-type{
-    margin-right: 1px;
+main#note.toolbar-open > section#content{
+    transform: translate3d(0px, 10px, 0px);
 }
-div#color_settings > div.color > div.selected{
-    transform: translate3d(0px, -100%, 0px);
-    transition: transform 300ms ease-in-out;
+main#note.toolbar-open > div#toolbar{
+    transform: translate3d(0px, 0px, 0px);
+}
+main#note.toolbar-open > div#toolbar > span#toolbar-handle > i{
+    transform: rotate3d(0,0,1, 180deg)
+}
+section#content > input#title{
+    margin: 0px;
+    color: inherit;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    font-weight: bold;
     width: 100%;
-    height: 50px;
-    box-sizing: border-box;
-    padding: 10px;
-    text-align: center;
+    padding: 5px;
+    padding-bottom: 10px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #a9a9a9;
+    outline: none !important;
 }
-div#color_settings > div.color > div.selected > img{
-    width: auto;
-    height: 30px;
-}
-div#color_settings > div.default{
-    background: #EDE7D9;
-}
-div#color_settings > div.red{
-    background: #CE5374;
-}
-div#color_settings > div.pink{
-    background: #EB4B98;
-}
-div#color_settings > div.purple{
-    background: #9D71E4;
-}
-div#color_settings > div.blue{
-    background: #5398BE;
-}
-div#color_settings > div.yellow{
-    background: #F2CD5D;
-}
-main.default > div#color_settings > div.color.default > div.selected{
-    transform: translate3d(0px,0px,0px);
-}
-main.red > div#color_settings > div.color.red > div.selected{
-    transform: translate3d(0px,0px,0px);
-}
-main.pink > div#color_settings > div.color.pink > div.selected{
-    transform: translate3d(0px,0px,0px);
-}
-main.purple > div#color_settings > div.color.purple > div.selected{
-    transform: translate3d(0px,0px,0px);
-}
-main.blue > div#color_settings > div.color.blue > div.selected{
-    transform: translate3d(0px,0px,0px);
-}
-main.yellow > div#color_settings > div.color.yellow > div.selected{
-    transform: translate3d(0px,0px,0px);
+section#content > textarea#body{
+    margin: 0px;
+    color: inherit;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: normal;
+    width: 100%;
+    padding: 5px;
+    flex: 1 1 100%;
+    background: transparent;
+    border: none;
+    resize: none;
+    outline: none !important;
 }

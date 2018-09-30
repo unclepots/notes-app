@@ -12,7 +12,7 @@ const is_logged_in = (req, res, next) => {
 
 // All URIs start with /notes/
 
-router.get('/', is_logged_in, note.getNote);
+router.get('/:note_id', is_logged_in, note.getNote);
 
 router.put('/', is_logged_in, note.newNote);
 

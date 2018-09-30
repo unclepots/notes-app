@@ -1,9 +1,9 @@
 <%- include part_header %>
-<header class="left">
-    <h2>Hello <%= user.google.display_name %></h2>
-    <p>Have a nice day! -from the creator</p>
-</header>
 <section class="fixed">
+    <header class="left">
+        <h2>Hello <%= user.google.display_name %></h2>
+        <p>Have a nice day! -from the creator</p>
+    </header>
     <div class="profile">
         <div class="profile_pic">
             <img src="<%=user.google.profile_pic%>" />

@@ -11,10 +11,7 @@ exports.mainPage = (req, res) => {
 exports.allNotes = (req, res) => {
     
     Notes.get_user_notes(req.user.id).then(notes => {
-        res.send({
-            action: 'all',
-            payload: notes
-        })
+        res.send(notes);
     }).catch(err => {
         console.log(err);
         res.status(500).send({

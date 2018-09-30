@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title><%= note.title %></title>
+        <meta name="theme-color" content="#000000">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="manifest" href="manifest.json">
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+        <link rel="stylesheet" href="/main/note.css" type="text/css" media="all">
+    </head>
+    <body class="note" data-note-id="<%= note._id %>">
+        <main id="note" class="<%= note.color %>">
+            <div id="toolbar">
+                <div class="actions"></div>
+                <span id="toolbar-handle">
+                    <i class="fas fa-caret-down"></i>
+                </span>
+                
+            </div>
+            <span id="close"><i class="fas fa-times"></i></span>
+            <section id="content">
+                <input type="text" id="title" class="title" value="<%= note.title %>" />
+                <textarea id="body"><%= note.body %></textarea>
+            </section>
+        </main>
+    </body>
+    <script src="/main/note.js"></script>
+</html>

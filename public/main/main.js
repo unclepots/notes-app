@@ -18,6 +18,15 @@ window.addEventListener('load', (e) => {
         console.log('Service Worker is not supported');
     }
 
+    document.getElementById('menu-toggle').addEventListener('click', function(){
+        var body = document.querySelector('body');
+        if(body.classList.contains('menu-open')){
+            body.classList.remove('menu-open');
+        }else{
+            body.classList.add('menu-open');
+        }
+    })
+
 });
 
 const Notes = {
@@ -33,7 +42,7 @@ const Notes = {
         btn.addEventListener('click', Notes.action.new);
         
         // Add Storage update event listener
-        window.addEventListener('storage', Notes.storage.local.callback)
+        window.addEventListener('storage', Notes.local.callback)
 
 
 
@@ -42,7 +51,7 @@ const Notes = {
         resolve('Notes Initiated');
 
         Notes.bind('span.expand', 'click', Notes.action.expand);
-        Notes.bind('span.close', 'click', Notes.action.close);
+        Notes.bind('span.external', 'click', Notes.action.external);
         Notes.bind('span.delete', 'click', Notes.action.delete);
         
     }),
@@ -50,55 +59,62 @@ const Notes = {
     action: {
 
         populate: () => new Promise((resolve, reject) => {
-            
-            var args = {
-                endpoint: '/notes/all/',
-                action: 'GET',
-                payload: {}
-            }
-    
-            Notes.storage.remote.request(args).then(() => {
-                resolve();
+
+            Notes.server.getAll().then(notes => {
+
+                var promises = [
+                    Notes.local.populate(notes),
+                    Notes.ui.populate(notes)
+                ];
+
+                Promise.all(promises).then(() => {
+                    resolve('All notes loaded');
+                }).catch(err => {
+                    console.error(err);
+                })
+
             }).catch(err => {
-                console.error(err);
-            });
+                console.log(err);
+            })
+            
         }),
 
         new: () => new Promise((resolve, reject) => {
-            
-            const args = {
-                endpoint: '/note/',
-                action: 'PUT',
-                payload: {}
-            }
-    
-            Notes.storage.remote.request(args).catch(err => {
-                console.error(err);
+
+            Notes.server.add().then(note => {
+                
+                var promises = [
+                    Notes.local.add(note),
+                    Notes.ui.add(note)
+                ];
+
+                Promise.all(promises).then(() => {
+                    resolve();
+                }).catch(err => {
+                    console.error(err);
+                })
             });
 
-            resolve();
         }),
 
         expand: (e) => new Promise((resolve, reject) => {
 
-            var target = e.toElement;
-            var found = false;
+            Notes.ui.open(e).then(() => {
+                resolve();
+            }).then(err => {
+                console.error(err);
+            });
 
-            while(!found){
-                if(target.classList.contains('note')){
-                    found = true;
-                }else{
-                    target = target.parentElement;
-                }
-                
-            }
+        }),
 
-            if(!found) return false;
+        external: (e) => new Promise((resolve, reject) => {
 
-            target.classList.add('open');
-            
+            Notes.ui.open(e, true).then(() => {
+                resolve();
+            }).then(err => {
+                console.error(err);
+            });
 
-            resolve();
         }),
 
         close: (e) => new Promise((resolve, reject) => {
@@ -144,147 +160,211 @@ const Notes = {
 
             if(!found) return false;
 
-            const args = {
-                endpoint: '/note/',
-                action: 'DELETE',
-                payload: {
-                    id: target.id,
-                }
-            }
-    
-            Notes.storage.remote.request(args).catch(err => {
+            var promises = [
+                Notes.local.delete(target.id),
+                Notes.server.delete(target.id),
+                Notes.ui.delete(target.id),
+            ]
+
+            Promise.all(promises).then(() => {
+                resolve('Deleted');
+            }).catch(err => {
                 console.error(err);
             });
 
+        }),
+    },
+
+    local: {
+
+        populate: (notes) => new Promise((resolve, reject) => {
+            var key;
+            var elem;
+
+            var ids = [];
+
+            notes.forEach(note => {
+                ids.push(note._id);
+                localStorage.setItem(note._id, JSON.stringify(note));
+            });
+
+            Notes.local.clean(ids);
             resolve();
 
         }),
-    },
 
-    storage: {
-
-        local: {
-
-            add: (note) => new Promise((resolve, reject) => {
-                localStorage.setItem(note._id, JSON.stringify(note));
-            }),
-
-            callback: (e) => new Promise((resolve, reject) => {
-                if(e.isTrusted){
-                    const note_container = document.getElementById(e.key);
-                    const note = JSON.parse(e.newValue);
-                    if(note_container){
-                        Notes.ui.update(note);
-                    }else{
-                        Notes.ui.add(note);
-                    }
-                }
-                resolve();
-            }),
-
-            delete: (id) => new Promise((resolve, reject) => {
-                localStorage.removeItem(id);
-                resolve();
-            }),
-        },
-
-        remote: {
-            request: (args) => new Promise((resolve, reject) => {
-                var req = new XMLHttpRequest();
-    
-                req.onload = Notes.storage.remote.callback;
-        
-                // Open connection
-                req.open(args.action, args.endpoint, true);
-        
-                // Set headers
-                req.setRequestHeader("Cache-Control", "no-cache");
-                req.setRequestHeader('Content-Type', 'application/json');
-        
-                // Send Request
-                req.send(JSON.stringify(args.payload));
-        
-                resolve('Request made');
-            }),
-
-            callback: (e) => {
-                if(e.target.readyState !== 4){return;}
-                
-                var response = JSON.parse(e.target.responseText);
-    
-                switch(response.action){
-                    case 'all':
-                        Notes.update.all(response.payload);
-                        break;
-                    case 'new':
-                        Notes.update.new(response.payload);
-                        break;
-                    case 'delete':
-                        Notes.update.delete(response.payload);
-                        break;
-                    default:
-                        console.log(response);
-                }
-            },
-
-        }
-    },
-
-    update: {
-        all: (notes) => new Promise((resolve, reject) => {
-            
-            var promises = [];
-
-            notes.forEach(note => {
-                Notes.storage.local.add(note);
-                var promise = Notes.ui.add(note);
-                promises.push(promise);
-            })
-
-            Promise.all(promises).then(() => {
-                resolve();
-            }).catch(err => {
-                console.error(err);
-            })
+        add: (note) => new Promise((resolve, reject) => {
+            localStorage.setItem(note._id, JSON.stringify(note));
         }),
 
-        new: (note) => new Promise((resolve, reject) => {
+        delete: (id) => new Promise((resolve, reject) => {
+            localStorage.removeItem(id);
+            resolve();
+        }),
 
-            Notes.storage.local.add(note);
+        clean: (ids) => new Promise((resolve, reject) => {
+            var key;
+            var keys = [];
+
+            var count = localStorage.length;
+
+            for(var i = 0; i < count; i++){
+                
+                key = localStorage.key(i);
+
+                if(!ids.includes(key)){
+                    keys.push(key);
+                }
+            }
+
+            keys.forEach(key => {
+                localStorage.removeItem(key);
+            })
+
+        }),
+
+        callback: (e) => new Promise((resolve, reject) => {
+            if(e.isTrusted){
+                const note_container = document.getElementById(e.key);
+                const note = JSON.parse(e.newValue);
+                if(note_container){
+                    Notes.ui.update(note);
+                }else{
+                    Notes.ui.add(note);
+                }
+            }
+            resolve();
+        }),
+    },
+
+    server: {
+
+        getAll: () => new Promise((resolve, reject) => {
             
-            Notes.ui.add(note).then(() => {
-                resolve();
+            var args = {
+                endpoint: '/notes/all/',
+                action: 'GET',
+                payload: {}
+            }
+    
+            Notes.server.request(args).then(data => {
+                resolve(data);
             }).catch(err => {
                 console.error(err);
-            })
+            });
+
+        }),
+
+        add: () => new Promise((resolve, reject) => {
+
+            const args = {
+                endpoint: '/note/',
+                action: 'PUT',
+                payload: {}
+            }
+    
+            Notes.server.request(args).then(note => {
+                resolve(note);
+            }).catch(err => {
+                console.error(err);
+                reject(err);
+            });
+
         }),
 
         delete: (id) => new Promise((resolve, reject) => {
 
-            var promises = [
-                Notes.storage.local.delete(id),
-                Notes.ui.delete(id)
-            ];
+            const args = {
+                endpoint: '/note/',
+                action: 'DELETE',
+                payload: {
+                    id: id,
+                }
+            }
 
-            Promise.all(promises).then(() => {
-                console.log('Note removed');
+            Notes.server.request(args).then(res => {
+                if(res.status === 'success'){
+                    resolve();
+                }else{
+                    console.error(responce);
+                    reject(responce);
+                }
             }).catch(err => {
                 console.error(err);
             })
-
         }),
 
+        request: (args) => new Promise((resolve, reject) => {
+            var req = new XMLHttpRequest();
+
+            req.onload = (e) => {
+                if(e.target.readyState === 4){
+                    resolve(JSON.parse(e.target.responseText));
+                }
+            };
+    
+            // Open connection
+            req.open(args.action, args.endpoint, true);
+    
+            // Set headers
+            req.setRequestHeader("Cache-Control", "no-cache");
+            req.setRequestHeader('Content-Type', 'application/json');
+    
+            // Send Request
+            req.send(JSON.stringify(args.payload));
+        }),
+
+        callback: (e) => {
+            if(e.target.readyState !== 4){return;}
+            
+            var response = JSON.parse(e.target.responseText);
+
+            switch(response.action){
+                case 'all':
+                    Notes.update.all(response.payload);
+                    break;
+                case 'new':
+                    Notes.update.new(response.payload);
+                    break;
+                case 'delete':
+                    Notes.update.delete(response.payload);
+                    break;
+                default:
+                    console.log(response);
+            }
+        },
     },
 
     ui: {
+
+        populate: (notes) => new Promise((resolve, reject) => {
+
+            var promises = [];
+
+            notes.forEach(note => {
+                promises.push(
+                    Notes.ui.add(note).catch(err => {
+                        console.error(err);
+                    })
+                );
+            });
+
+            Promise.all(promises).then(()=>{
+                resolve();
+            }).catch(err => {
+                console.error(err);
+            });
+
+        }),
+
         add: (note) => new Promise((resolve, reject) => {
             
             const html = `<article id="${note._id}" class="note ${note.color}">
                 <span class="close"><i class="fas fa-times"></i></span>
                 <div class="content">
                     <div class="color-toolbar"></div>
-                    <input class="title" type="text" placeholder="Title" value="${note.title}" />
-                    <textarea class="body">${note.body}</textarea>
+                    <h3 class="title">${note.title}</h3>
+                    <div class="body">${note.body}</div>
                     <div class="toolbar">
                         <div class="actions"></div>
                         <div class="status"></div>
@@ -311,19 +391,23 @@ const Notes = {
             resolve();
         }),
 
-        open: (e) => new Promise((resolve, reject) => {
-            
-            var note = null;
+        open: (e, external = false) => new Promise((resolve, reject) => {
 
-            for(var i = 0; i < e.path.length; i++){
-                if(
-                    e.path[i].nodeName === 'ARTICLE' &&
-                    e.path[i].className.indexOf('note ') > -1
-                ){
-                    note = e.path[i];
-                    i = e.path.length;
+            var target = e.toElement;
+            var found = false;
+
+            while(!found){
+                if(target.classList.contains('note')){
+                    found = true;
+                }else{
+                    target = target.parentElement;
                 }
+                
             }
+
+            if(!found) return false;
+
+            var externalWindows = window.open('/note/'+target.id);
 
             resolve();
         }),

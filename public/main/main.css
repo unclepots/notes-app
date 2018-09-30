@@ -1,17 +1,6 @@
 /* ========================
     Initial
 ======================== */
-:root{
-    /* General */
-    --transition: all 300ms cubic-bezier(0.15, 0.61, 0.35, 1);
-    /* Color Settings */
-    --color-default: #EDE7D9;
-    --color-pink: #EB4B98;
-    --color-purple: #9D71E4;
-    --color-blue: #5398BE;
-    --color-yellow: #F2CD5D;
-    --color-red: #CE5374;
-}
 html, body{
     padding: 0px;
     margin: 0px;
@@ -64,11 +53,63 @@ body > nav#main-nav > h1{
     line-height: 40px;
     display: inline-block;
 }
+body > nav#main-nav > div#menu-toggle{
+    display: none;
+    float: right;
+    width: 25px;
+    height: 16px;
+    margin-top: 13px;
+    margin-right: 10px;
+    cursor: pointer;
+    position: relative;
+    transform-origin: center center;
+    transform: rotate3d(0,0,1,0deg) scale3d(1,1,1);
+    transition-property: all;
+    transition-duration: 700ms;
+}
+body > nav#main-nav > div#menu-toggle > span.line {
+    display: block;
+    position: absolute;
+    height: 3px;
+    background: #000;
+}
+body > nav#main-nav > div#menu-toggle > span#line1 {
+    top: 0px;
+    right: 0px;
+    left: 0px;
+    transform-origin: right center;
+    transform: rotate3d(0,0,1,0deg);
+    transition-property: all;
+    transition-duration: var(--main-hover-duration);
+    transition-timing-function: var(--main-hover-timing);
+}
+body > nav#main-nav > div#menu-toggle > span#line2 {
+    top: 50%;
+    right: 0px;
+    left: 0px;
+    transform-origin: center center;
+    transform: translateY(-50%) scale3d(1,1,1);
+    transition-property: all;
+    transition-duration: var(--main-hover-duration);
+    transition-timing-function: var(--main-hover-timing);
+}
+body > nav#main-nav > div#menu-toggle > span#line3 {
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    transform-origin: right center;
+    transform: rotate3d(0,0,1,0deg);
+    transition-property: all;
+    transition-duration: var(--main-hover-duration);
+    transition-timing-function: var(--main-hover-timing);
+}
 body > nav#main-nav > ul#main-menu{
     padding: 0px;
     margin: 0px;
     list-style: none;
     float: right;
+    display: flex;
+    flex-direction: row;
 }
 body > nav#main-nav > ul#main-menu > li{
     display: inline-block;
@@ -92,6 +133,51 @@ main#main-container{
     margin-top: 60px;
     background: #ccc;
     position: relative;
+    transform: translate3d(0px,0px,0px);
+    transition-duration: 700ms;
+    transition-property: all;
+}
+/* ========================
+    Mobile Menu
+======================== */
+@media only screen and (max-width: 576px) {
+    body > nav#main-nav > ul#main-menu{
+        position: fixed;
+        top: 60px;
+        bottom: 0px;
+        right: 0px;
+        left: auto;
+        width: 150px;
+        background: #FFF;
+        flex-direction: column;
+        padding: 15px;
+        box-shadow: 5px 0px 0px 0px #000;
+        transform: translate3d(100%,0px,0px);
+        transition-duration: 700ms;
+        transition-property: all;
+    }
+    body.menu-open > nav#main-nav > ul#main-menu{
+        box-shadow: 5px 10px 15px 0px #000;
+        transform: translate3d(0%,0px,0px);
+    }
+    body.menu-open > main#main-container{
+        transform: translate3d(-150px,0px,0px);
+    }
+    body > nav#main-nav > div#menu-toggle{
+        display: inline-block;
+    }
+    body.menu-open > nav#main-nav > div#menu-toggle{
+        transform: rotate3d(0,0,1,180deg) scale3d(1,1,1);
+    }
+    body.menu-open > nav#main-nav > div#menu-toggle > span#line1 {
+        transform: rotate3d(0,0,1,-45deg) scale3d(0.7,1.5,1) translate3d(0px,-4px,0px);
+    }
+    body.menu-open > nav#main-nav > div#menu-toggle > span#line2 {
+        transform: translateY(-50%) scale3d(0,1,1);
+    }
+    body.menu-open > nav#main-nav > div#menu-toggle > span#line3 {
+        transform: rotate3d(0,0,1,45deg) scale3d(0.7,1.5,1) translate3d(0px,4px,0px);
+    }
 }
 /* ========================
     Header
@@ -110,6 +196,15 @@ main#main-container > header > p{
 /* ========================
     Sections
 ======================== */
+main#main-container > section{
+    display: flex;
+    flex-wrap: wrap;
+    padding: 15px;
+    overflow-y: scroll;
+    height: 100%;
+    align-items: flex-start;
+    align-content: flex-start;
+}
 main#main-container > section.fluid{
     width: 100%;
 }
@@ -273,13 +368,8 @@ div#notes-toolbar > .toolbar > .btn{
 /* ========================
     Notes Container
 ======================== */
-section#notes-container{
-    display: flex;
-    flex-wrap: wrap;
-    padding: 15px;
+main#main-container > section#notes-container{
     padding-top: 40px;
-    overflow-y: scroll;
-    height: 100%;
 }
 /* ========================
     Notes
@@ -423,15 +513,18 @@ article.note .body{
     margin: 0px;
     color: inherit;
     font-size: 1rem;
+    line-height: 1.5rem;
     font-weight: normal;
     width: 100%;
     padding: 5px;
-    min-height: 10rem;
-    flex: 1 0;
-    padding-bottom: 10px;
+    flex: 0 0 15rem;
+    max-height: 15rem;
     background: transparent;
     border: none;
     resize: none;
+}
+article.note div.body{
+    overflow: hidden;
 }
 .hint{
     position: relative;

@@ -1,9 +1,11 @@
 # dependencies
 /node_modules
+public/tinymce
 
 # misc
 desktop.ini
 .DS_Store
 .env
+.gitignore
 localhost.crt
 localhost.key

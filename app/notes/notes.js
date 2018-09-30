@@ -29,6 +29,31 @@ collection.create = (user_id) => new Promise((resolve, reject) => {
     })
 })
 
+collection.open = (user_id, note_id) => new Promise((resolve, reject) => {
+
+    NotesModel.findById(note_id).then(note => {
+
+        if(!note){
+            return reject({
+                error: 'Note not found'
+            })
+        }
+        
+        if(note.owner != user_id){
+            return reject({
+                error: 'You don\'t have permission to view this Note'
+            })
+        }
+
+        resolve(note);
+
+    }).catch(err => {
+        console.error(err);
+        reject();
+    })
+
+})
+
 collection.delete = (user_id, note_id) => new Promise((resolve, reject) => {
 
     NotesModel.findById(note_id).then(note => {

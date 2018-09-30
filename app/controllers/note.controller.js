@@ -3,18 +3,31 @@ const Notes = require('../notes/notes');
 
 
 exports.getNote = (req, res) => {
-    res.send({
-        action: 'success'
-    })
+
+    if(typeof req.params.note_id !== 'string'){
+        return res.send({
+            action: 'error',
+            payload: 'ID not present'
+        })
+    }
+
+    Notes.open(req.user.id, req.params.note_id).then(note => {
+        res.render('note', {
+            user: req.user,
+            note: note,
+        });
+    }).catch(err => {
+        console.log(err);
+        res.status(500).send({
+            error: err,
+        })
+    });
 }
 
 exports.newNote = (req, res) => {
     
     Notes.create(req.user.id).then(note => {
-        res.send({
-            action: 'new',
-            payload: note
-        })
+        res.send(note);
     }).catch(err => {
         console.log(err);
         res.status(500).send({
@@ -35,9 +48,9 @@ exports.deleteNote = (req, res) => {
 
     Notes.delete(req.user.id, req.body.id).then(note_id => {
         res.send({
-            action: 'delete',
-            payload: note_id
-        })
+            status: 'success',
+            id: note_id
+        });
     }).catch(err => {
         console.log(err);
         res.status(500).send({
