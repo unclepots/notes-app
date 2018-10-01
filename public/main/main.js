@@ -32,6 +32,8 @@ window.addEventListener('load', (e) => {
 const Notes = {
     main_container: null,
 
+    notes_out: {},
+        
     init: () => new Promise((resolve, reject) => {
         // Select Main Container
         Notes.main_container = document.getElementById('notes-container');
@@ -44,8 +46,6 @@ const Notes = {
         // Add Storage update event listener
         window.addEventListener('storage', Notes.local.callback)
 
-
-
         Notes.action.populate();
 
         resolve('Notes Initiated');
@@ -53,6 +53,7 @@ const Notes = {
         Notes.bind('span.expand', 'click', Notes.action.expand);
         Notes.bind('span.external', 'click', Notes.action.external);
         Notes.bind('span.delete', 'click', Notes.action.delete);
+        Notes.bind('span.focus_in', 'click', Notes.action.focus);
         
     }),
 
@@ -68,6 +69,10 @@ const Notes = {
                 ];
 
                 Promise.all(promises).then(() => {
+                    
+                    const notesOut = localStorage.getItem('notes-out');
+                    Notes.local.out.refresh(notesOut);
+
                     resolve('All notes loaded');
                 }).catch(err => {
                     console.error(err);
@@ -109,10 +114,10 @@ const Notes = {
 
         external: (e) => new Promise((resolve, reject) => {
 
-            Notes.ui.open(e, true).then(() => {
+            Notes.action.getNoteElement(e).then(target => {
+                if(!target) return resolve();
+                Notes.ui.open(target, true);
                 resolve();
-            }).then(err => {
-                console.error(err);
             });
 
         }),
@@ -146,19 +151,7 @@ const Notes = {
 
             if(!confirmed) return false;
 
-            var target = e.toElement;
-            var found = false;
             
-            while(!found){
-                if(target.classList.contains('note')){
-                    found = true;
-                }else{
-                    target = target.parentElement;
-                }
-                
-            }
-
-            if(!found) return false;
 
             var promises = [
                 Notes.local.delete(target.id),
@@ -172,6 +165,31 @@ const Notes = {
                 console.error(err);
             });
 
+        }),
+
+        focus: (e) => new Promise((resolve, reject) => {
+            Notes.action.external(e).then(() => {
+                resolve()
+            }).catch(err => {
+                console.error(err);
+            });
+        }),
+
+        getNoteElement: (e) => new Promise((resolve, reject) => {
+            var target = e.toElement;
+            var found = false;
+            
+            while(!found){
+                if(target.classList.contains('note')){
+                    found = true;
+                }else{
+                    target = target.parentElement;
+                }
+                
+            }
+
+            if(!found) return resolve(null);
+            return resolve(target);
         }),
     },
 
@@ -208,6 +226,8 @@ const Notes = {
 
             var count = localStorage.length;
 
+            ids.push('notes-out');
+
             for(var i = 0; i < count; i++){
                 
                 key = localStorage.key(i);
@@ -225,16 +245,65 @@ const Notes = {
 
         callback: (e) => new Promise((resolve, reject) => {
             if(e.isTrusted){
-                const note_container = document.getElementById(e.key);
-                const note = JSON.parse(e.newValue);
-                if(note_container){
-                    Notes.ui.update(note);
+                if(e.key === 'notes-out'){
+                    Notes.local.out.refresh(e.newValue);
                 }else{
-                    Notes.ui.add(note);
+                    // const note_container = document.getElementById(e.key);
+                    // const note = JSON.parse(e.newValue);
+                    // if(note_container){
+                    //     Notes.ui.update(note);
+                    // }else{
+                    //     Notes.ui.add(note);
+                    // }
                 }
             }
             resolve();
         }),
+
+        out: {
+            refresh: (value) => new Promise((resolve, reject) => {
+
+                var ids = JSON.parse(value);
+
+                var current = document.querySelectorAll('article.note.out');
+                current.forEach(elem => {
+                    elem.classList.remove('out');
+                })
+
+                ids.forEach(id => {
+                    document.getElementById(id).classList.add('out');
+                })
+
+                resolve();
+            }),
+
+            update: (target, out = true) => new Promise((resolve, reject) => {
+                var ids = localStorage.getItem('notes-out');
+                var id = target.id;
+
+                ids = JSON.parse(ids);
+                if(ids == undefined) ids = [];
+
+                if(out){
+                    if(!ids.includes(id)){
+                        ids.push(id);
+                        target.classList.add('out');
+                    }
+                }else{
+                    if(ids.includes(id)){
+                        let index = ids.indexOf(id);
+                        ids.splice(index, 1);
+                        target.classList.remove('out');
+                    }
+                }
+
+                ids = JSON.stringify(ids);
+
+                localStorage.setItem('notes-out', ids);
+
+                resolve();
+            }),
+        }
     },
 
     server: {
@@ -360,19 +429,18 @@ const Notes = {
         add: (note) => new Promise((resolve, reject) => {
             
             const html = `<article id="${note._id}" class="note ${note.color}">
-                <span class="close"><i class="fas fa-times"></i></span>
                 <div class="content">
-                    <div class="color-toolbar"></div>
                     <h3 class="title">${note.title}</h3>
                     <div class="body">${note.body}</div>
-                    <div class="toolbar">
-                        <div class="actions"></div>
-                        <div class="status"></div>
-                    </div>
                     <div class="hover">
                         <span class="hint expand" data-hint="Expand"><i class="fas fa-expand"></i></span>
                         <span class="hint external" data-hint="Open as separate"><i class="fas fa-external-link-square-alt"></i></span>
                         <span class="hint delete" data-hint="Delete note"><i class="fas fa-trash-alt"></i></span>
+                    </div>
+                    <div class="out">
+                        <p>This note is out in a wild</p>
+                        <span class="btn bring_back">Bring it <i class="fas fa-undo-alt"></i></span>
+                        <span class="btn focus_in">Focus <i class="fas fa-search"></i></span>
                     </div>
                 </div>
             </article>`;
@@ -391,23 +459,16 @@ const Notes = {
             resolve();
         }),
 
-        open: (e, external = false) => new Promise((resolve, reject) => {
+        open: (target, external = false) => new Promise((resolve, reject) => {
+            
+            if(!target) return resolve();
 
-            var target = e.toElement;
-            var found = false;
+            var url = '/note/'+target.id;
+            var name = target.id;
+            var args = 'left=100,top=100,width=500,height=500,menubar=no,location=no,resizable=yes,scrollbars=no,status=no';
 
-            while(!found){
-                if(target.classList.contains('note')){
-                    found = true;
-                }else{
-                    target = target.parentElement;
-                }
-                
-            }
-
-            if(!found) return false;
-
-            var externalWindows = window.open('/note/'+target.id);
+            Notes.notes_out[name] = window.open(url, name, args);
+            Notes.local.out.update(target);
 
             resolve();
         }),

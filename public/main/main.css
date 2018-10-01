@@ -481,6 +481,41 @@ article.note > div.content > div.hover > span{
 article.note > div.content > div.hover > span.expand{
     cursor: zoom-in;
 }
+article.note > div.content > div.out{
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+    justify-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+}
+article.note.out > div.content > div.out{
+    display: flex;
+}
+article.note.out > div.content > div.hover{
+    display: none;
+}
+article.note > div.content > div.out > p{
+    color: white;
+    font-size: 1.2rem;
+    text-align: center;
+}
+article.note > div.content > div.out > span{
+    display: block;
+    color: #464646;
+    background: #FFF;
+    padding: 10px 20px;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px -5px #000;
+}
 article.note > div.content:hover{
     transform: scale3d(1.05,1.05,1.05);
     box-shadow: 2px 2px 7px -1px #555;

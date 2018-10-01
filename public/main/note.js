@@ -1,16 +1,116 @@
-var mainContainer = document.getElementById('note');
-var closeButton = document.getElementById('toolbar-handle');
+const Note = {
+    mainContainer: document.getElementById('note'),
+    toolbarHandle: document.getElementById('toolbar-handle'),
 
-closeButton.addEventListener('click', function(e){
-    if(mainContainer.classList.contains('toolbar-open')){
-        mainContainer.classList.remove('toolbar-open')
-    }else{
-        mainContainer.classList.add('toolbar-open')
-    }
-})
+    init: (e) => new Promise((resolve, reject) => {
+        
+        Note.id = Note.mainContainer.dataset.id;
 
+        Note.bind('span#toolbar-handle', 'click', Note.tools.toolbarTogle);
 
+        
+        Note.local.out.update(Note.id, true).then(() => {
+            e.returnValue = null;
+            resolve();
+        });
 
+        resolve();
+    }),
+
+    destroy: (e) => new Promise((resolve, reject) => {
+        e.preventDefault();
+        e.returnValue = '';
+
+        Note.local.out.update(Note.id, false).then(() => {
+            e.returnValue = null;
+            resolve();
+        });
+
+    }),
+
+    action: {
+        
+    },
+
+    tools: {
+        toolbarTogle: (e) => new Promise((resolve, reject) => {
+            if(Note.mainContainer.classList.contains('toolbar-open')){
+                Note.mainContainer.classList.remove('toolbar-open')
+            }else{
+                Note.mainContainer.classList.add('toolbar-open')
+            }
+        }),
+    },
+
+    local: {
+
+        out: {
+            update: (id, out = true) => new Promise((resolve, reject) => {
+
+                var ids = localStorage.getItem('notes-out');
+
+                ids = JSON.parse(ids);
+                if(ids == undefined) ids = [];
+
+                if(out){
+                    if(!ids.includes(id)){
+                        ids.push(id);
+                    }
+                }else{
+                    if(ids.includes(id)){
+                        let index = ids.indexOf(id);
+                        ids.splice(index, 1);
+                    }
+                }
+
+                ids = JSON.stringify(ids);
+
+                localStorage.setItem('notes-out', ids);
+
+                resolve();
+            }),
+        }
+    },
+
+    bind: (selector, eventType, callback, context) => new Promise((resolve, reject) => {
+
+        (context || document).addEventListener(eventType, function(event){
+            
+            var nodeList = document.querySelectorAll(selector);
+
+            // convert nodeList into matches array
+            var matches = [];
+            for(var i = 0; i < nodeList.length; ++i){
+                matches.push(nodeList[i]);
+            }
+
+            // if there are matches
+            if(matches){
+                var element = event.target;
+                var found = false;
+
+                // traverse up the DOM tree until element can't be found in matches array
+                while(element && !found){
+                    if(matches.indexOf(element) === -1){
+                        element = element.parentElement;
+                    }else{
+                        found = true;
+                    }
+                }
+
+                // when element matches the selector, apply the callback
+                if(found){
+                    callback.call(element, event);
+                }
+            }
+        }, false);
+
+        resolve();
+    }),
+}
+
+window.onload = Note.init();
+window.onbeforeunload = Note.destroy;
 
 
 
